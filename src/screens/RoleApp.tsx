@@ -16,6 +16,7 @@ import { UsuarioAuth } from '../types';
 import AdminUsersScreen from './admin/AdminUsersScreen';
 import AvisosScreen from './common/AvisosScreen';
 import IncidenciasScreen from './common/IncidenciasScreen';
+import IotScreen from './common/Iotscreen';
 import LecturasScreen from './common/LecturasScreen';
 import MedidoresScreen from './common/MedidoresScreen';
 import MessagesScreen from './common/MessagesScreen';
@@ -78,8 +79,6 @@ export default function RoleApp({ user, onLogout }: Props) {
       return [
         ...common,
         { key: 'miVivienda', label: 'Mi vivienda', icon: 'home-outline', group: 'Mi cuenta' },
-        { key: 'planillas', label: 'Mis planillas', icon: 'receipt-text-outline', group: 'Mi cuenta' },
-        { key: 'estadisticas', label: 'Semestral', icon: 'chart-bar', group: 'Mi cuenta' },
         { key: 'lecturas', label: 'Lecturaciones', icon: 'water-plus', group: 'Campo' },
         { key: 'medidores', label: 'Medidores', icon: 'gauge', group: 'Campo' },
         { key: 'incidencias', label: 'Incidencias', icon: 'alert-octagon-outline', group: 'Campo' },
@@ -88,10 +87,12 @@ export default function RoleApp({ user, onLogout }: Props) {
       ];
     }
 
+    // SOCIO
     return [
       ...common,
       { key: 'miVivienda', label: 'Mi vivienda', icon: 'home-outline', group: 'Mi cuenta' },
       { key: 'planillas', label: 'Planillas', icon: 'receipt-text-outline', group: 'Mi cuenta' },
+      { key: 'iot', label: 'Mi Medidor IoT', icon: 'wifi', group: 'Mi cuenta' },
       { key: 'incidencias', label: 'Incidencias', icon: 'alert-octagon-outline', group: 'Mi cuenta' },
       { key: 'mapa', label: 'Mapa', icon: 'map-marker-radius-outline', group: 'Mi cuenta' },
       { key: 'estadisticas', label: 'Semestral', icon: 'chart-bar', group: 'Mi cuenta' },
@@ -103,27 +104,17 @@ export default function RoleApp({ user, onLogout }: Props) {
 
   const groupedTabs = useMemo(() => {
     const groups = new Map<string, TabItem[]>();
-
     tabs.forEach((tab) => {
-      if (!groups.has(tab.group)) {
-        groups.set(tab.group, []);
-      }
+      if (!groups.has(tab.group)) groups.set(tab.group, []);
       groups.get(tab.group)?.push(tab);
     });
-
     return Array.from(groups.entries());
   }, [tabs]);
 
   function logoutConfirm() {
     Alert.alert('Cerrar sesión', '¿Deseas salir de la aplicación?', [
       { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Salir',
-        style: 'destructive',
-        onPress: () => {
-          void onLogout();
-        },
-      },
+      { text: 'Salir', style: 'destructive', onPress: () => { void onLogout(); } },
     ]);
   }
 
@@ -184,6 +175,9 @@ export default function RoleApp({ user, onLogout }: Props) {
     case 'mapa':
       content = <MapaIncidenciasScreen user={user} onLogout={logoutConfirm} />;
       break;
+    case 'iot':
+      content = <IotScreen user={user} onLogout={logoutConfirm} />;
+      break;
     case 'home':
     default:
       content = <HomeScreen user={user} onLogout={logoutConfirm} />;
@@ -209,30 +203,18 @@ export default function RoleApp({ user, onLogout }: Props) {
               {groupedTabs.map(([groupName, items]) => (
                 <View key={groupName} style={styles.groupBlock}>
                   <Text style={styles.groupTitle}>{groupName}</Text>
-
                   {items.map((item) => (
                     <Pressable
                       key={item.key}
-                      onPress={() => {
-                        setCurrent(item.key);
-                        setOpen(false);
-                      }}
-                      style={[
-                        styles.menuItem,
-                        current === item.key ? styles.menuItemActive : null,
-                      ]}
+                      onPress={() => { setCurrent(item.key); setOpen(false); }}
+                      style={[styles.menuItem, current === item.key ? styles.menuItemActive : null]}
                     >
                       <MaterialCommunityIcons
                         name={item.icon as any}
                         size={22}
                         color={current === item.key ? '#fff' : colors.primary}
                       />
-                      <Text
-                        style={[
-                          styles.menuLabel,
-                          current === item.key ? styles.menuLabelActive : null,
-                        ]}
-                      >
+                      <Text style={[styles.menuLabel, current === item.key ? styles.menuLabelActive : null]}>
                         {item.label}
                       </Text>
                     </Pressable>
@@ -257,84 +239,33 @@ export default function RoleApp({ user, onLogout }: Props) {
 
 const styles = StyleSheet.create({
   fabWrap: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    top: 0,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
+    justifyContent: 'flex-end', alignItems: 'center',
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(15,23,42,0.18)',
   },
-  menuContainer: {
-    alignItems: 'center',
-    marginBottom: 18,
-  },
+  menuContainer: { alignItems: 'center', marginBottom: 18 },
   menuScroll: {
-    maxHeight: 430,
-    width: 270,
-    marginBottom: 12,
-    borderRadius: 22,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#0F172A',
-    shadowOpacity: 0.14,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 8,
+    maxHeight: 430, width: 270, marginBottom: 12, borderRadius: 22,
+    backgroundColor: '#FFFFFF', shadowColor: '#0F172A', shadowOpacity: 0.14,
+    shadowRadius: 20, shadowOffset: { width: 0, height: 10 }, elevation: 8,
   },
-  menuScrollContent: {
-    padding: 14,
-    gap: 12,
-  },
-  groupBlock: {
-    gap: 8,
-  },
-  groupTitle: {
-    fontWeight: '800',
-    fontSize: 13,
-    color: '#64748B',
-    marginTop: 2,
-    marginBottom: 2,
-    paddingHorizontal: 4,
-  },
+  menuScrollContent: { padding: 14, gap: 12 },
+  groupBlock: { gap: 8 },
+  groupTitle: { fontWeight: '800', fontSize: 13, color: '#64748B', marginTop: 2, marginBottom: 2, paddingHorizontal: 4 },
   fabButton: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#0F172A',
-    shadowOpacity: 0.24,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 12 },
-    elevation: 8,
+    width: 68, height: 68, borderRadius: 34, backgroundColor: colors.primary,
+    alignItems: 'center', justifyContent: 'center', shadowColor: '#0F172A',
+    shadowOpacity: 0.24, shadowRadius: 16, shadowOffset: { width: 0, height: 12 }, elevation: 8,
   },
   menuItem: {
-    minWidth: 190,
-    paddingHorizontal: 16,
-    height: 50,
-    borderRadius: 18,
-    backgroundColor: '#F8FAFC',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    gap: 10,
-    borderWidth: 1,
-    borderColor: '#DCE7F7',
+    minWidth: 190, paddingHorizontal: 16, height: 50, borderRadius: 18,
+    backgroundColor: '#F8FAFC', flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'flex-start', gap: 10, borderWidth: 1, borderColor: '#DCE7F7',
   },
-  menuItemActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  menuLabel: {
-    fontWeight: '800',
-    color: colors.primary,
-  },
-  menuLabelActive: {
-    color: '#fff',
-  },
+  menuItemActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  menuLabel: { fontWeight: '800', color: colors.primary },
+  menuLabelActive: { color: '#fff' },
 });
