@@ -137,7 +137,7 @@ Escanea el QR con la app **Expo Go** en tu celular.
 
 [![GitHub](https://img.shields.io/badge/GitHub-Edi--fran-181717?style=for-the-badge&logo=github)](https://github.com/Edi-fran)
 
-*Tecnólogo en Desarrollo de Software*  
+*Tecnólogo en Desarrollo de Aplicaciones Web*  
 *Universidad Estatal Amazónica — UEA*  
 *Puyo, Pastaza, Ecuador*
 
